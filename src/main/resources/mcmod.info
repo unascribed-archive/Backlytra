@@ -1,0 +1,16 @@
+[
+{
+  "modid": "backlytra",
+  "name": "Backlytra",
+  "description": "Elytra for 1.8.9.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://unascribed.com",
+  "updateJSON": "http://unascribed.com/update-check/backlytra.json",
+  "authorList": ["Aesen 'unascribed' Vismea"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
