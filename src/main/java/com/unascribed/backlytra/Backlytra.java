@@ -41,6 +41,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
@@ -280,6 +281,7 @@ public class Backlytra {
 		return false;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public static void rotateCorpse(AbstractClientPlayer entityLiving, float partialTicks) {
 		if (MethodImitations.isElytraFlying(entityLiving)) {
 			float f = MethodImitations.getTicksElytraFlying(entityLiving) + partialTicks;
@@ -297,12 +299,14 @@ public class Backlytra {
 		}
 	}
 
+	@SideOnly(Side.CLIENT)
 	public static void postSetRotationAngles(ModelBiped modelBiped, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
 		if (entityIn instanceof EntityLivingBase && (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 ? entityIn != Minecraft.getMinecraft().renderViewEntity : true)) {
 			LayerBetterElytra.doRenderLayer((EntityLivingBase)entityIn, limbSwing, limbSwingAmount, Minecraft.getMinecraft().timer.renderPartialTicks, ageInTicks, netHeadYaw, headPitch, 0.0625F);
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static void setRotationAngles(ModelBiped modelBiped, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
 		boolean flag = entityIn instanceof EntityLivingBase && MethodImitations.getTicksElytraFlying((EntityLivingBase) entityIn) > 4;
 		modelBiped.bipedHead.rotateAngleY = netHeadYaw * 0.017453292F;
