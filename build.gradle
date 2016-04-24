@@ -88,8 +88,8 @@ artifacts {
 
 dependencies {
 	deploy 'org.apache.maven.wagon:wagon-ssh:2.10'
-	compile 'com.unascribed:lambdanetwork:0.0.2'
-	shadow 'com.unascribed:lambdanetwork:0.0.2'
+	compile 'com.unascribed:lambdanetwork:0.0.3'
+	shadow 'com.unascribed:lambdanetwork:0.0.3'
 }
 
 minecraft {

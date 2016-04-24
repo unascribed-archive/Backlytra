@@ -2,6 +2,7 @@ package com.unascribed.backlytra;
 
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -30,6 +31,11 @@ public class ItemElytra extends Item {
 		return repair.getItem() == Items.leather;
 	}
 
+	@Override
+	public boolean isValidArmor(ItemStack stack, int armorType, Entity entity) {
+		return armorType == 3;
+	}
+	
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn) {
 		int entityequipmentslot = 3;
