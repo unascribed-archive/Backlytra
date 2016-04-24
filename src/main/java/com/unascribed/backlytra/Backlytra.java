@@ -143,6 +143,9 @@ public class Backlytra {
 	public void onPostPlayerTick(PlayerTickEvent e) {
 		if (e.phase == Phase.END) {
 			if (MethodImitations.isElytraFlying(e.player)) {
+				if (e.player instanceof EntityPlayerMP) {
+ 					((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
+	 			}
 				float f = 0.6f;
 				float f1 = 0.6f;
 				
