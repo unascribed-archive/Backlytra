@@ -1,0 +1,11 @@
+{
+	"item.elytra.flying": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "minecraft:elytra_loop",
+				"volume": 0.6
+			}
+		]
+	}
+}

@@ -1,6 +1,6 @@
 # Backlytra
 
-Backports Elytra to 1.8.9.
+Backports Elytra to 1.8.9. *Fair warning*: this mod is the result of cobbling together code from Quark and vanilla with wild abandon.
 
 Has multiple possible crafting recipes, here they are in order of cost:
 
