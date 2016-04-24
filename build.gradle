@@ -58,19 +58,6 @@ configurations {
 	deploy
 }
 
-
-dependencies {
-	
-}
-
-retrolambda {
-	jdk "/usr/lib/jvm/java-8-oracle"
-	oldJdk "/usr/lib/jvm/java-6-openjdk-amd64"
-	javaVersion JavaVersion.VERSION_1_6
-	defaultMethods true
-	
-}
-
 jar {
 	manifest {
 		attributes (
