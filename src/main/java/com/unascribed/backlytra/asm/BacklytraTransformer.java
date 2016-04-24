@@ -71,7 +71,7 @@ public class BacklytraTransformer extends MalisisClassTransformer {
 	}
 	
 	private AsmHook movedTooQuicklyHook() {
-		AsmHook hook = new AsmHook(new McpMethodMapping("processPlayer", "func_147_347_a",
+		AsmHook hook = new AsmHook(new McpMethodMapping("processPlayer", "func_147347_a",
 				"net/minecraft/network/NetHandlerPlayServer", "(Lnet/minecraft/network/play/client/C03PacketPlayer;)V"));
 		
 		McpFieldMapping logger = new McpFieldMapping("logger", "field_147370_c",
