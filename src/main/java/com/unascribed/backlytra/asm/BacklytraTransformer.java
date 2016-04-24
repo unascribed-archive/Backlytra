@@ -6,7 +6,6 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.unascribed.backlytra.asm.repackage.net.malisis.core.asm.AsmHook;
@@ -67,53 +66,70 @@ public class BacklytraTransformer extends MalisisClassTransformer {
 		
 		hook.jumpAfter(find).insert(inject);
 		
-		return hook;
-	}
-	
-	private AsmHook movedTooQuicklyHook() {
-		AsmHook hook = new AsmHook(new McpMethodMapping("processPlayer", "func_147_347_a",
-				"net/minecraft/network/NetHandlerPlayServer", "(Lnet/minecraft/network/play/client/C03PacketPlayer;)V"));
 		
-		McpFieldMapping logger = new McpFieldMapping("logger", "field_147370_c",
-				"net/minecraft/network/NetHandlerPlayServer", "Lorg/apache/logging/log4j/Logger;");
-		McpFieldMapping playerEntity = new McpFieldMapping("playerEntity", "field_147369_b",
-				"net/minecraft/network/NetHandlerPlayServer", "Lnet/minecraft/entity/player/EntityPlayerMP;");
+		// Backlytra.postSetRotationAngles(this, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
 		
-		// if (Backlytra.didPlayerReallyGoTooFast(playerEntity, d15-d14)) {
+		InsnList inject2 = new InsnList();
 		
-		InsnList inject = new InsnList();
+		inject2.add(new VarInsnNode(ALOAD, 0));
+		inject2.add(new VarInsnNode(FLOAD, 1));
+		inject2.add(new VarInsnNode(FLOAD, 2));
+		inject2.add(new VarInsnNode(FLOAD, 3));
+		inject2.add(new VarInsnNode(FLOAD, 4));
+		inject2.add(new VarInsnNode(FLOAD, 5));
+		inject2.add(new VarInsnNode(FLOAD, 6));
+		inject2.add(new VarInsnNode(ALOAD, 7));
+		inject2.add(new MethodInsnNode(INVOKESTATIC, "com/unascribed/backlytra/Backlytra", "postSetRotationAngles",
+				"(Lnet/minecraft/client/model/ModelBiped;FFFFFFLnet/minecraft/entity/Entity;)V", false));
 		
-		LabelNode l87 = new LabelNode();
-		
-		inject.add(new VarInsnNode(ALOAD, 0));
-		inject.add(playerEntity.getInsnNode(GETFIELD));
-		inject.add(new VarInsnNode(DLOAD, 35));
-		inject.add(new VarInsnNode(DLOAD, 33));
-		inject.add(new InsnNode(DSUB));
-		inject.add(new MethodInsnNode(INVOKESTATIC, "com/unascribed/backlytra/Backlytra", "didPlayerReallyMoveTooQuickly",
-				"(Lnet/minecraft/entity/player/EntityPlayerMP;D)Z", false));
-		inject.add(new JumpInsnNode(IFEQ, l87));
-		
-		//     logger.warn(this.playerEntity.getName() + " moved too quickly! " + d11 + "," + d12 + "," + d13 + " (" + d11 + ", " + d12 + ", " + d13 + ")");
-		
-		InsnList find = new InsnList();
-		
-		find.add(logger.getInsnNode(GETSTATIC));
-		find.add(new TypeInsnNode(NEW, "java/lang/StringBuilder"));
-		find.add(new InsnNode(DUP));
-		
-		//     return;
+		// return;
 		
 		InsnList find2 = new InsnList();
 		
 		find2.add(new InsnNode(RETURN));
 		
-		hook.jumpBefore(find).jump(-1).insert(inject)
-			.jumpAfter(find2);
+		hook.jumpBefore(find).insert(inject2);
 		
-		// }
+		return hook;
+	}
+	
+	private AsmHook movedTooQuicklyHook() {
+		AsmHook hook = new AsmHook(new McpMethodMapping("processPlayer", "func_147347_a",
+				"net/minecraft/network/NetHandlerPlayServer", "(Lnet/minecraft/network/play/client/C03PacketPlayer;)V"));
 		
-		hook.insert(l87);
+		McpFieldMapping playerEntity = new McpFieldMapping("playerEntity", "field_147369_b",
+				"net/minecraft/network/NetHandlerPlayServer", "Lnet/minecraft/entity/player/EntityPlayerMP;");
+		
+		// d10 = Backlytra.modifyMovementDelta(this.playerEntity, d10);
+		
+		InsnList inject = new InsnList();
+		
+		inject.add(new VarInsnNode(ALOAD, 0));
+		inject.add(playerEntity.getInsnNode(GETFIELD));
+		inject.add(new VarInsnNode(DLOAD, 25));
+		inject.add(new MethodInsnNode(INVOKESTATIC, "com/unascribed/backlytra/Backlytra", "modifyMovementDelta",
+				"(Lnet/minecraft/entity/player/EntityPlayerMP;D)D", false));
+		inject.add(new VarInsnNode(DSTORE, 25));
+		
+		
+		// double d10 = d7 * d7 + d8 * d8 + d9 * d9;
+		
+		InsnList find = new InsnList();
+		
+		find.add(new VarInsnNode(DLOAD, 19));
+		find.add(new VarInsnNode(DLOAD, 19));
+		find.add(new InsnNode(DMUL));
+		find.add(new VarInsnNode(DLOAD, 21));
+		find.add(new VarInsnNode(DLOAD, 21));
+		find.add(new InsnNode(DMUL));
+		find.add(new InsnNode(DADD));
+		find.add(new VarInsnNode(DLOAD, 23));
+		find.add(new VarInsnNode(DLOAD, 23));
+		find.add(new InsnNode(DMUL));
+		find.add(new InsnNode(DADD));
+		find.add(new VarInsnNode(DSTORE, 25));
+		
+		hook.jumpAfter(find).insert(inject);
 		
 		return hook;
 	}
@@ -154,25 +170,22 @@ public class BacklytraTransformer extends MalisisClassTransformer {
 		AsmHook hook = new AsmHook(new McpMethodMapping("getEyeHeight", "func_70047_e",
 				"net/minecraft/entity/player/EntityPlayer", "()F"));
 
-		// f = Backlytra.modifyEyeHeight(this, f);
+		// if (Backlytra.shouldOverrideEyeHeight(this)) return Backlytra.getEyeHeight(this);
 		
 		InsnList inject = new InsnList();
 		
 		inject.add(new VarInsnNode(ALOAD, 0));
-		inject.add(new VarInsnNode(FLOAD, 1));
 		inject.add(new MethodInsnNode(INVOKESTATIC, "com/unascribed/backlytra/Backlytra",
-				"modifyEyeHeight", "(Lnet/minecraft/entity/player/EntityPlayer;F)F", false));
-		inject.add(new VarInsnNode(FSTORE, 1));
+				"shouldOverrideEyeHeight", "(Lnet/minecraft/entity/player/EntityPlayer;)Z", false));
+		LabelNode l1 = new LabelNode();
+		inject.add(new JumpInsnNode(IFEQ, l1));
+		inject.add(new VarInsnNode(ALOAD, 0));
+		inject.add(new MethodInsnNode(INVOKESTATIC, "com/unascribed/backlytra/Backlytra",
+				"getEyeHeight", "(Lnet/minecraft/entity/player/EntityPlayer;)F", false));
+		inject.add(new InsnNode(FRETURN));
+		inject.add(l1);
 		
-		// return f;
-		
-		InsnList find = new InsnList();
-		
-		find.add(new VarInsnNode(FLOAD, 1));
-		find.add(new InsnNode(FRETURN));
-		
-		
-		hook.jumpBefore(find).insert(inject);
+		hook.insert(inject).recalculateFrames();
 		
 		return hook;
 	}

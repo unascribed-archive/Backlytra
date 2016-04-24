@@ -3,12 +3,15 @@ package com.unascribed.backlytra;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.Vec3;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class ModelElytra extends ModelBase {
@@ -27,8 +30,8 @@ public class ModelElytra extends ModelBase {
 	 */
 	@Override
 	public void render(Entity entityIn, float p_78088_2_, float limbSwing, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		GlStateManager.disableRescaleNormal();
-		GlStateManager.disableCull();
+		GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+		GL11.glDisable(GL11.GL_CULL_FACE);
 		this.leftWing.render(scale);
 		this.rightWing.render(scale);
 	}
@@ -51,7 +54,7 @@ public class ModelElytra extends ModelBase {
 			float f4 = 1.0F;
 
 			if (entityIn.motionY < 0.0D) {
-				Vec3 vec3d = (new Vec3(entityIn.motionX, entityIn.motionY, entityIn.motionZ)).normalize();
+				Vec3 vec3d = (Vec3.createVectorHelper(entityIn.motionX, entityIn.motionY, entityIn.motionZ)).normalize();
 				f4 = 1.0F - (float) Math.pow(-vec3d.yCoord, 1.5D);
 			}
 

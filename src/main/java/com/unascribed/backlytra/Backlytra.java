@@ -1,11 +1,14 @@
 package com.unascribed.backlytra;
 
-import com.google.common.base.Enums;
-import com.unascribed.lambdanetwork.LambdaNetwork;
+import java.util.Set;
 
+import org.lwjgl.opengl.GL11;
+
+import com.google.common.base.Enums;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EntityTrackerEntry;
@@ -20,23 +23,24 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.GameRules.ValueType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
@@ -51,7 +55,7 @@ public class Backlytra {
 	public static ItemElytra elytra;
 	public static int durability;
 
-	public static LambdaNetwork network;
+	public static SimpleNetworkWrapper network;
 
 	@SidedProxy(clientSide = "com.unascribed.backlytra.ClientProxy", serverSide = "com.unascribed.backlytra.Proxy")
 	public static Proxy proxy;
@@ -68,25 +72,12 @@ public class Backlytra {
 		config.save();
 		
 		elytra = new ItemElytra();
-		elytra.setUnlocalizedName("elytra");
+		elytra.setUnlocalizedName("elytra")
+			.setTextureName("minecraft:elytra");
 		GameRegistry.registerItem(elytra, "elytra");
 		
-		network = LambdaNetwork.builder()
-				.channel("Backlytra")
-				.packet("StartFallFlying")
-					.boundTo(Side.SERVER)
-					.handledOnMainThreadBy((player, t) -> {
-						if (!player.onGround && player.motionY < 0.0D && !MethodImitations.isElytraFlying(player) && !player.isInWater()) {
-							ItemStack itemstack = player.getEquipmentInSlot(3);
-							
-							if (itemstack != null && itemstack.getItem() == elytra && ItemElytra.isBroken(itemstack)) {
-								MethodImitations.setElytraFlying(player, true);
-							}
-						} else {
-							MethodImitations.setElytraFlying(player, false);
-						}
-					})
-				.build();
+		network = NetworkRegistry.INSTANCE.newSimpleChannel("Backlytra");
+		network.registerMessage(StartFallFlying.class, StartFallFlying.class, 0, Side.SERVER);
 		
 		switch (Enums.getIfPresent(ElytraRecipe.class, recipeStr.toUpperCase()).or(ElytraRecipe.NONE)) {
 			case NONE:
@@ -155,14 +146,14 @@ public class Backlytra {
 				float f1 = 0.6f;
 				
 				if (f != e.player.width || f1 != e.player.height) {
-					AxisAlignedBB axisalignedbb = e.player.getEntityBoundingBox();
-					axisalignedbb = new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + f, axisalignedbb.minY + f1, axisalignedbb.minZ + f);
+					AxisAlignedBB axisalignedbb = e.player.getBoundingBox();
+					axisalignedbb = AxisAlignedBB.getBoundingBox(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + f, axisalignedbb.minY + f1, axisalignedbb.minZ + f);
 	
-					if (e.player.worldObj.getCollisionBoxes(axisalignedbb).isEmpty()) {
+					if (e.player.worldObj.func_147461_a(axisalignedbb).isEmpty()) {
 						float f2 = e.player.width;
 						e.player.width = f;
 						e.player.height = f1;
-						e.player.setEntityBoundingBox(new AxisAlignedBB(e.player.getEntityBoundingBox().minX, e.player.getEntityBoundingBox().minY, e.player.getEntityBoundingBox().minZ, e.player.getEntityBoundingBox().minX + e.player.width, e.player.getEntityBoundingBox().minY + e.player.height, e.player.getEntityBoundingBox().minZ + e.player.width));
+						e.player.boundingBox.setBounds(e.player.getBoundingBox().minX, e.player.getBoundingBox().minY, e.player.getBoundingBox().minZ, e.player.getBoundingBox().minX + e.player.width, e.player.getBoundingBox().minY + e.player.height, e.player.getBoundingBox().minZ + e.player.width);
 
 						if (e.player.width > f2 && !e.player.worldObj.isRemote) {
 							e.player.moveEntity(f2 - e.player.width, 0.0D, f2 - e.player.width);
@@ -177,7 +168,7 @@ public class Backlytra {
 	public void onPostWorldTick(WorldTickEvent e) {
 		if (e.phase == Phase.END && e.world instanceof WorldServer) {
 			WorldServer ws = (WorldServer)e.world;
-			for (EntityTrackerEntry ete : ws.getEntityTracker().trackedEntities) {
+			for (EntityTrackerEntry ete : (Set<EntityTrackerEntry>)ws.getEntityTracker().trackedEntities) {
 				if (ete.trackedEntity instanceof EntityLivingBase) {
 					EntityLivingBase elb = (EntityLivingBase) ete.trackedEntity;
 					boolean flying = MethodImitations.isElytraFlying(elb);
@@ -196,7 +187,7 @@ public class Backlytra {
 	
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load e) {
-		e.world.getGameRules().addGameRule("disableElytraMovementCheck", "false", ValueType.BOOLEAN_VALUE);
+		e.world.getGameRules().addGameRule("disableElytraMovementCheck", "false");
 	}
 	
 	private void updateElytra(EntityLivingBase e) {
@@ -227,13 +218,6 @@ public class Backlytra {
 		} else {
 			FieldImitations.set(e, "ticksElytraFlying", 0);
 		}
-	}
-	
-	public static float modifyEyeHeight(EntityPlayer entityPlayer, float f) {
-		if (MethodImitations.isElytraFlying(entityPlayer) && !entityPlayer.isPlayerSleeping()) {
-			return 0.4f;
-		}
-		return f;
 	}
 	
 	public static DamageSource flyIntoWall = (new DamageSource("flyIntoWall")).setDamageBypassesArmor();
@@ -300,7 +284,7 @@ public class Backlytra {
 		if (MethodImitations.isElytraFlying(entityLiving)) {
 			float f = MethodImitations.getTicksElytraFlying(entityLiving) + partialTicks;
 			float f1 = MathHelper.clamp_float(f * f / 100.0F, 0.0F, 1.0F);
-			GlStateManager.rotate(f1 * (-90.0F - entityLiving.rotationPitch), 1.0F, 0.0F, 0.0F);
+			GL11.glRotatef(f1 * (-90.0F - entityLiving.rotationPitch), 1.0F, 0.0F, 0.0F);
 			Vec3 vec3d = entityLiving.getLook(partialTicks);
 			double d0 = entityLiving.motionX * entityLiving.motionX + entityLiving.motionZ * entityLiving.motionZ;
 			double d1 = vec3d.xCoord * vec3d.xCoord + vec3d.zCoord * vec3d.zCoord;
@@ -308,18 +292,17 @@ public class Backlytra {
 			if (d0 > 0.0D && d1 > 0.0D) {
 				double d2 = (entityLiving.motionX * vec3d.xCoord + entityLiving.motionZ * vec3d.zCoord) / (Math.sqrt(d0) * Math.sqrt(d1));
 				double d3 = entityLiving.motionX * vec3d.zCoord - entityLiving.motionZ * vec3d.xCoord;
-				GlStateManager.rotate((float) (Math.signum(d3) * Math.acos(d2)) * 180.0F / (float) Math.PI, 0.0F, 1.0F, 0.0F);
+				GL11.glRotatef((float) (Math.signum(d3) * Math.acos(d2)) * 180.0F / (float) Math.PI, 0.0F, 1.0F, 0.0F);
 			}
 		}
 	}
 
-	public static boolean didPlayerReallyMoveTooQuickly(EntityPlayerMP playerEntity, double d) {
-		if (MethodImitations.isElytraFlying(playerEntity)) {
-			return !playerEntity.worldObj.getGameRules().getBoolean("disableElytraMovementCheck") && d > 300;
+	public static void postSetRotationAngles(ModelBiped modelBiped, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
+		if (entityIn instanceof EntityLivingBase && (Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 ? entityIn != Minecraft.getMinecraft().renderViewEntity : true)) {
+			LayerBetterElytra.doRenderLayer((EntityLivingBase)entityIn, limbSwing, limbSwingAmount, Minecraft.getMinecraft().timer.renderPartialTicks, ageInTicks, netHeadYaw, headPitch, 0.0625F);
 		}
-		return true;
 	}
-
+	
 	public static void setRotationAngles(ModelBiped modelBiped, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
 		boolean flag = entityIn instanceof EntityLivingBase && MethodImitations.getTicksElytraFlying((EntityLivingBase) entityIn) > 4;
 		modelBiped.bipedHead.rotateAngleY = netHeadYaw * 0.017453292F;
@@ -361,6 +344,24 @@ public class Backlytra {
 		modelBiped.bipedLeftLeg.rotateAngleY = 0.0F;
 		modelBiped.bipedRightLeg.rotateAngleZ = 0.0F;
 		modelBiped.bipedLeftLeg.rotateAngleZ = 0.0F;
+	}
+
+	public static boolean shouldOverrideEyeHeight(EntityPlayer entityPlayer) {
+		return MethodImitations.isElytraFlying(entityPlayer) && !entityPlayer.isPlayerSleeping();
+	}
+	
+	public static float getEyeHeight(EntityPlayer player) {
+		return 0.4f;
+	}
+
+	public static double modifyMovementDelta(EntityPlayerMP playerEntity, double d10) {
+		if (MethodImitations.isElytraFlying(playerEntity)) {
+			if (playerEntity.worldObj.getGameRules().getGameRuleBooleanValue("disableElytraMovementCheck")) {
+				return 0;
+			}
+			return d10/3;
+		}
+		return d10;
 	}
 
 }

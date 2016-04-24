@@ -16,7 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
 
 public class ElytraDyingRecipe implements IRecipe {
 
@@ -53,7 +52,7 @@ public class ElytraDyingRecipe implements IRecipe {
 			ItemStack stack = var1.getStackInSlot(i);
 			if (stack != null) {
 				if (stack.getItem() instanceof ItemDye)
-					source = stack.getItemDamage();
+					source = stack.getMetadata();
 				else
 					target = stack;
 			}
@@ -75,11 +74,6 @@ public class ElytraDyingRecipe implements IRecipe {
 	@Override
 	public ItemStack getRecipeOutput() {
 		return null;
-	}
-
-	@Override
-	public ItemStack[] getRemainingItems(InventoryCrafting inv) {
-		return ForgeHooks.defaultRecipeGetRemainingItems(inv);
 	}
 
 }

@@ -1,37 +1,18 @@
 package com.unascribed.backlytra;
 
-import java.util.List;
-import java.util.Map;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.renderer.entity.RendererLivingEntity;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class ClientProxy extends Proxy {
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
-		ModelLoader.setCustomModelResourceLocation(Backlytra.elytra, 0, new ModelResourceLocation(new ResourceLocation("backlytra", "elytra"), "inventory"));
 	}
 	@Override
 	public void postInit(FMLPostInitializationEvent event) {
-		Minecraft mc = Minecraft.getMinecraft();
-		RenderManager manager = mc.getRenderManager();
-		Map<String, RenderPlayer> renders = manager.getSkinMap();
-		for(RenderPlayer render : renders.values()) {
-			List<LayerRenderer<?>> list = ReflectionHelper.getPrivateValue(RendererLivingEntity.class, render, "i", "field_177097_h", "layerRenderers");
-			list.add(new LayerBetterElytra(render));
-		}
 	}
 	
 	@Override
@@ -43,9 +24,7 @@ public class ClientProxy extends Proxy {
 				ItemStack itemstack = e.getEquipmentInSlot(3);
 
 				if (itemstack != null && itemstack.getItem() == Backlytra.elytra && ItemElytra.isBroken(itemstack)) {
-					Backlytra.network.send()
-						.packet("StartFallFlying")
-						.toServer();
+					Backlytra.network.sendToServer(new StartFallFlying());
 					Minecraft.getMinecraft().getSoundHandler().playSound(new ElytraSound(e));
 				}
 			}

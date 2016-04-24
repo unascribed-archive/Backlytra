@@ -2,6 +2,7 @@ package com.unascribed.backlytra;
 
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -13,13 +14,13 @@ import net.minecraftforge.common.util.Constants.NBT;
 public class ItemElytra extends Item {
 	public ItemElytra() {
 		this.maxStackSize = 1;
-		this.setMaxDamage(Backlytra.durability);
+		this.setMaxDurability(Backlytra.durability);
 		this.setCreativeTab(CreativeTabs.tabTransport);
 		BlockDispenser.dispenseBehaviorRegistry.putObject(this, BlockDispenser.dispenseBehaviorRegistry.getObject(Items.iron_chestplate));
 	}
 
 	public static boolean isBroken(ItemStack stack) {
-		return stack.getItemDamage() < stack.getMaxDamage() - 1;
+		return stack.getMetadata() < stack.getMaxDurability() - 1;
 	}
 
 	/**
@@ -44,6 +45,11 @@ public class ItemElytra extends Item {
 		}
 	}
 
+	@Override
+	public boolean isValidArmor(ItemStack stack, int armorType, Entity entity) {
+		return armorType == 1;
+	}
+	
 	@Override
 	public int getColorFromItemStack(ItemStack stack, int renderPass) {
 		int color =
