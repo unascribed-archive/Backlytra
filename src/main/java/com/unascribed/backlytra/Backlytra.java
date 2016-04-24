@@ -27,6 +27,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -124,6 +125,7 @@ public class Backlytra {
 		GameRegistry.addRecipe(new ElytraDyingRecipe());
 		RecipeSorter.register("backlytra:elytraDying", ElytraDyingRecipe.class, RecipeSorter.Category.SHAPELESS, "");
 		proxy.preInit(e);
+		FMLCommonHandler.instance().bus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
