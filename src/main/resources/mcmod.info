@@ -2,7 +2,7 @@
 {
   "modid": "backlytra",
   "name": "Backlytra",
-  "description": "Elytra for 1.8.9.",
+  "description": "Elytra sounds for 1.9.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://unascribed.com",
@@ -13,4 +13,5 @@
   "screenshots": [],
   "dependencies": []
 }
+
 ]

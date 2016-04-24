@@ -2,15 +2,15 @@ package com.unascribed.backlytra;
 
 import net.minecraft.client.audio.MovingSound;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
 
 public class ElytraSound extends MovingSound {
 	private final EntityPlayerSP field_189405_m;
 	private int field_189406_n;
 
 	public ElytraSound(EntityPlayerSP p_i47113_1_) {
-		super(new ResourceLocation("backlytra", "item.elytra.flying"));
+		super(Backlytra.elytraFlying, SoundCategory.PLAYERS);
 		this.field_189405_m = p_i47113_1_;
 		this.repeat = true;
 		this.repeatDelay = 0;
@@ -24,7 +24,7 @@ public class ElytraSound extends MovingSound {
 	public void update() {
 		++this.field_189406_n;
 
-		if (!this.field_189405_m.isDead && (this.field_189406_n <= 20 || MethodImitations.isElytraFlying(this.field_189405_m))) {
+		if (!this.field_189405_m.isDead && (this.field_189406_n <= 20 || this.field_189405_m.isElytraFlying())) {
 			this.xPosF = (float) this.field_189405_m.posX;
 			this.yPosF = (float) this.field_189405_m.posY;
 			this.zPosF = (float) this.field_189405_m.posZ;

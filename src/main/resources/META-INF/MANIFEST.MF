@@ -1,1 +1,0 @@
-FMLAT: backlytra_at.cfg

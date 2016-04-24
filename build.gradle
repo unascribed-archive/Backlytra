@@ -17,10 +17,6 @@ buildscript {
 	}
 }
 
-plugins {
-	id 'com.github.johnrengelman.shadow' version '1.2.3'
-}
-
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'maven'
@@ -58,51 +54,8 @@ configurations {
 	deploy
 }
 
-
-dependencies {
-	
-}
-
-retrolambda {
-	jdk "/usr/lib/jvm/java-8-oracle"
-	oldJdk "/usr/lib/jvm/java-6-openjdk-amd64"
-	javaVersion JavaVersion.VERSION_1_6
-	defaultMethods true
-	
-}
-
-jar {
-	manifest {
-		attributes (
-			'FMLAT': 'backlytra_at.cfg',
-			'FMLCorePlugin': 'com.unascribed.backlytra.asm.BacklytraLoadingPlugin',
-			'FMLCorePluginContainsFMLMod': 'true',
-			'ForceLoadAsMod': 'true'
-		)
-	}
-	classifier = 'slim'
-}
-
-
-shadowJar {
-	classifier = ''
-	relocate 'com.unascribed.lambdanetwork', "com.unascribed.backlytra.lambdanetwork"
-}
-
-reobf {
-	shadowJar { mappingType = 'SEARGE' }
-}
-
-tasks.build.dependsOn reobfShadowJar
-
-artifacts {
-	archives shadowJar
-}
-
 dependencies {
 	deploy 'org.apache.maven.wagon:wagon-ssh:2.10'
-	compile 'com.unascribed:lambdanetwork:0.0.2'
-	shadow 'com.unascribed:lambdanetwork:0.0.2'
 }
 
 minecraft {
