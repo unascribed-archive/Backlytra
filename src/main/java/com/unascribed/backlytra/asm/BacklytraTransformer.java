@@ -4,7 +4,6 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
@@ -209,14 +208,7 @@ public class BacklytraTransformer extends MalisisClassTransformer {
 		inject.add(l7);
 		
 		
-		// float f4 = 0.91F;
-		
-		InsnList find = new InsnList();
-		
-		find.add(new LdcInsnNode(new Float("0.91")));
-		
-		
-		hook.jumpBefore(find).insert(inject);
+		hook.insert(inject);
 		
 		return hook;
 	}

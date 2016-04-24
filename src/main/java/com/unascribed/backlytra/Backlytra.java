@@ -144,26 +144,25 @@ public class Backlytra {
 	@SubscribeEvent
 	public void onPostPlayerTick(PlayerTickEvent e) {
 		if (e.phase == Phase.END) {
+			float f = 0.6f;
+			float f1 = 1.8f;
 			if (MethodImitations.isElytraFlying(e.player)) {
 				if (e.player instanceof EntityPlayerMP) {
  					((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
 	 			}
-				float f = 0.6f;
-				float f1 = 0.6f;
-				
-				if (f != e.player.width || f1 != e.player.height) {
-					AxisAlignedBB axisalignedbb = e.player.boundingBox;
-					axisalignedbb = AxisAlignedBB.getBoundingBox(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + f, axisalignedbb.minY + f1, axisalignedbb.minZ + f);
-	
-					if (e.player.worldObj.func_147461_a(axisalignedbb).isEmpty()) {
-						float f2 = e.player.width;
-						e.player.width = f;
-						e.player.height = f1;
-						e.player.boundingBox.setBounds(e.player.boundingBox.minX, e.player.boundingBox.minY, e.player.boundingBox.minZ, e.player.boundingBox.minX + e.player.width, e.player.boundingBox.minY + e.player.height, e.player.boundingBox.minZ + e.player.width);
+			}
+			if (f != e.player.width || f1 != e.player.height) {
+				AxisAlignedBB axisalignedbb = e.player.boundingBox;
+				axisalignedbb = AxisAlignedBB.getBoundingBox(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + f, axisalignedbb.minY + f1, axisalignedbb.minZ + f);
 
-						if (e.player.width > f2 && !e.player.worldObj.isRemote) {
-							e.player.moveEntity(f2 - e.player.width, 0.0D, f2 - e.player.width);
-						}
+				if (e.player.worldObj.func_147461_a(axisalignedbb).isEmpty()) {
+					float f2 = e.player.width;
+					e.player.width = f;
+					e.player.height = f1;
+					e.player.boundingBox.setBounds(e.player.boundingBox.minX, e.player.boundingBox.minY, e.player.boundingBox.minZ, e.player.boundingBox.minX + e.player.width, e.player.boundingBox.minY + e.player.height, e.player.boundingBox.minZ + e.player.width);
+
+					if (e.player.width > f2 && !e.player.worldObj.isRemote) {
+						e.player.moveEntity(f2 - e.player.width, 0.0D, f2 - e.player.width);
 					}
 				}
 			}
@@ -229,59 +228,61 @@ public class Backlytra {
 	public static DamageSource flyIntoWall = (new DamageSource("flyIntoWall")).setDamageBypassesArmor();
 	
 	public static boolean moveEntityWithHeading(EntityLivingBase e, float strafe, float forward) {
-		if (MethodImitations.isElytraFlying(e)) {
-			if (e.motionY > -0.5D) {
-				e.fallDistance = 1.0F;
-			}
-
-			Vec3 vec3d = e.getLookVec();
-			float f = e.rotationPitch * 0.017453292F;
-			double d6 = Math.sqrt(vec3d.xCoord * vec3d.xCoord + vec3d.zCoord * vec3d.zCoord);
-			double d8 = Math.sqrt(e.motionX * e.motionX + e.motionZ * e.motionZ);
-			double d1 = vec3d.lengthVector();
-			float f4 = MathHelper.cos(f);
-			f4 = (float) ((double) f4 * (double) f4 * Math.min(1.0D, d1 / 0.4D));
-			e.motionY += -0.08D + f4 * 0.06D;
-
-			if (e.motionY < 0.0D && d6 > 0.0D) {
-				double d2 = e.motionY * -0.1D * f4;
-				e.motionY += d2;
-				e.motionX += vec3d.xCoord * d2 / d6;
-				e.motionZ += vec3d.zCoord * d2 / d6;
-			}
-
-			if (f < 0.0F) {
-				double d9 = d8 * (-MathHelper.sin(f)) * 0.04D;
-				e.motionY += d9 * 3.2D;
-				e.motionX -= vec3d.xCoord * d9 / d6;
-				e.motionZ -= vec3d.zCoord * d9 / d6;
-			}
-
-			if (d6 > 0.0D) {
-				e.motionX += (vec3d.xCoord / d6 * d8 - e.motionX) * 0.1D;
-				e.motionZ += (vec3d.zCoord / d6 * d8 - e.motionZ) * 0.1D;
-			}
-
-			e.motionX *= 0.9900000095367432D;
-			e.motionY *= 0.9800000190734863D;
-			e.motionZ *= 0.9900000095367432D;
-			e.moveEntity(e.motionX, e.motionY, e.motionZ);
-
-			if (e.isCollidedHorizontally && !e.worldObj.isRemote) {
-				double d10 = Math.sqrt(e.motionX * e.motionX + e.motionZ * e.motionZ);
-				double d3 = d8 - d10;
-				float f5 = (float) (d3 * 10.0D - 3.0D);
-
-				if (f5 > 0.0F) {
-					e.playSound((int) f5 > 4 ? "game.player.hurt.fall.big" : "game.player.hurt.fall.small", 1.0F, 1.0F);
-					e.attackEntityFrom(flyIntoWall, f5);
+		if (e.isServerWorld() && !e.isInWater() && !e.handleLavaMovement()) {
+			if (MethodImitations.isElytraFlying(e)) {
+				if (e.motionY > -0.5D) {
+					e.fallDistance = 1.0F;
 				}
-			}
 
-			if (e.onGround && !e.worldObj.isRemote) {
-				MethodImitations.setElytraFlying(e, false);
+				Vec3 vec3d = e.getLookVec();
+				float f = e.rotationPitch * 0.017453292F;
+				double d6 = Math.sqrt(vec3d.xCoord * vec3d.xCoord + vec3d.zCoord * vec3d.zCoord);
+				double d8 = Math.sqrt(e.motionX * e.motionX + e.motionZ * e.motionZ);
+				double d1 = vec3d.lengthVector();
+				float f4 = MathHelper.cos(f);
+				f4 = (float) ((double) f4 * (double) f4 * Math.min(1.0D, d1 / 0.4D));
+				e.motionY += -0.08D + f4 * 0.06D;
+
+				if (e.motionY < 0.0D && d6 > 0.0D) {
+					double d2 = e.motionY * -0.1D * f4;
+					e.motionY += d2;
+					e.motionX += vec3d.xCoord * d2 / d6;
+					e.motionZ += vec3d.zCoord * d2 / d6;
+				}
+
+				if (f < 0.0F) {
+					double d9 = d8 * (-MathHelper.sin(f)) * 0.04D;
+					e.motionY += d9 * 3.2D;
+					e.motionX -= vec3d.xCoord * d9 / d6;
+					e.motionZ -= vec3d.zCoord * d9 / d6;
+				}
+
+				if (d6 > 0.0D) {
+					e.motionX += (vec3d.xCoord / d6 * d8 - e.motionX) * 0.1D;
+					e.motionZ += (vec3d.zCoord / d6 * d8 - e.motionZ) * 0.1D;
+				}
+
+				e.motionX *= 0.9900000095367432D;
+				e.motionY *= 0.9800000190734863D;
+				e.motionZ *= 0.9900000095367432D;
+				e.moveEntity(e.motionX, e.motionY, e.motionZ);
+
+				if (e.isCollidedHorizontally && !e.worldObj.isRemote) {
+					double d10 = Math.sqrt(e.motionX * e.motionX + e.motionZ * e.motionZ);
+					double d3 = d8 - d10;
+					float f5 = (float) (d3 * 10.0D - 3.0D);
+
+					if (f5 > 0.0F) {
+						e.playSound((int) f5 > 4 ? "game.player.hurt.fall.big" : "game.player.hurt.fall.small", 1.0F, 1.0F);
+						e.attackEntityFrom(flyIntoWall, f5);
+					}
+				}
+
+				if (e.onGround && !e.worldObj.isRemote) {
+					MethodImitations.setElytraFlying(e, false);
+				}
+				return true;
 			}
-			return true;
 		}
 		return false;
 	}
