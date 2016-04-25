@@ -33,7 +33,7 @@ public class ItemElytra extends Item {
 
 	@Override
 	public boolean isValidArmor(ItemStack stack, int armorType, Entity entity) {
-		return armorType == 3;
+		return armorType == 1;
 	}
 	
 	@Override
