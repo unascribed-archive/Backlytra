@@ -151,12 +151,13 @@ public class Backlytra {
 	@SubscribeEvent
 	public void onPostPlayerTick(PlayerTickEvent e) {
 		if (e.phase == Phase.END) {
-			if (MethodImitations.isElytraFlying(e.player)) {
-				if (e.player instanceof EntityPlayerMP) {
-					((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
-				}
+			boolean isElytraFlying = MethodImitations.isElytraFlying(e.player);
+			if (e.player instanceof EntityPlayerMP && isElytraFlying) {
+				((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
+			}
+			if (isElytraFlying != FieldImitations.get(e.player, "lastIsElytraFlying", false)) {
 				float f = 0.6f;
-				float f1 = 0.6f;
+				float f1 = isElytraFlying ? 0.6f : 1.8f;
 				
 				if (f != e.player.width || f1 != e.player.height) {
 					AxisAlignedBB axisalignedbb = e.player.getEntityBoundingBox();
@@ -173,6 +174,7 @@ public class Backlytra {
 						}
 					}
 				}
+				FieldImitations.set(e.player, "lastIsElytraFlying", isElytraFlying);
 			}
 		}
 	}
