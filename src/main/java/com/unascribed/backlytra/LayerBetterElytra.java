@@ -61,6 +61,8 @@ public class LayerBetterElytra {
 
 			GL11.glPopMatrix();
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, bound);
+			
+			GL11.glColor3f(1, 1, 1);
 		}
 	}
 
