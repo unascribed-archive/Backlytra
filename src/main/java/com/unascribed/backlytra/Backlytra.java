@@ -144,27 +144,30 @@ public class Backlytra {
 	@SubscribeEvent
 	public void onPostPlayerTick(PlayerTickEvent e) {
 		if (e.phase == Phase.END) {
-			float f = 0.6f;
-			float f1 = 1.8f;
-			if (MethodImitations.isElytraFlying(e.player)) {
-				if (e.player instanceof EntityPlayerMP) {
- 					((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
-	 			}
+			boolean isElytraFlying = MethodImitations.isElytraFlying(e.player);
+			if (e.player instanceof EntityPlayerMP && isElytraFlying) {
+				((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
 			}
-			if (f != e.player.width || f1 != e.player.height) {
-				AxisAlignedBB axisalignedbb = e.player.boundingBox;
-				axisalignedbb = AxisAlignedBB.getBoundingBox(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + f, axisalignedbb.minY + f1, axisalignedbb.minZ + f);
-
-				if (e.player.worldObj.func_147461_a(axisalignedbb).isEmpty()) {
-					float f2 = e.player.width;
-					e.player.width = f;
-					e.player.height = f1;
-					e.player.boundingBox.setBounds(e.player.boundingBox.minX, e.player.boundingBox.minY, e.player.boundingBox.minZ, e.player.boundingBox.minX + e.player.width, e.player.boundingBox.minY + e.player.height, e.player.boundingBox.minZ + e.player.width);
-
-					if (e.player.width > f2 && !e.player.worldObj.isRemote) {
-						e.player.moveEntity(f2 - e.player.width, 0.0D, f2 - e.player.width);
+			if (isElytraFlying != FieldImitations.get(e.player, "lastIsElytraFlying", false)) {
+				float f = 0.6f;
+				float f1 = isElytraFlying ? 0.6f : 1.8f;
+				
+				if (f != e.player.width || f1 != e.player.height) {
+					AxisAlignedBB axisalignedbb = e.player.boundingBox;
+					axisalignedbb = AxisAlignedBB.getBoundingBox(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + f, axisalignedbb.minY + f1, axisalignedbb.minZ + f);
+	
+					if (e.player.worldObj.func_147461_a(axisalignedbb).isEmpty()) {
+						float f2 = e.player.width;
+						e.player.width = f;
+						e.player.height = f1;
+						e.player.boundingBox.setBounds(e.player.boundingBox.minX, e.player.boundingBox.minY, e.player.boundingBox.minZ, e.player.boundingBox.minX + e.player.width, e.player.boundingBox.minY + e.player.height, e.player.boundingBox.minZ + e.player.width);
+	
+						if (e.player.width > f2 && !e.player.worldObj.isRemote) {
+							e.player.moveEntity(f2 - e.player.width, 0.0D, f2 - e.player.width);
+						}
 					}
 				}
+				FieldImitations.set(e.player, "lastIsElytraFlying", isElytraFlying);
 			}
 		}
 	}
