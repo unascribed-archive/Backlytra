@@ -208,7 +208,7 @@ public class Backlytra {
 	private void updateElytra(EntityLivingBase e) {
 		boolean flag = MethodImitations.isElytraFlying(e);
 
-		if (flag && !e.onGround && !e.isRiding()) {
+		if (flag && !e.onGround && !e.isRiding() && !e.isInWater()) {
 			ItemStack itemstack = e.getEquipmentInSlot(3);
 
 			if (itemstack != null && itemstack.getItem() == elytra && ItemElytra.isBroken(itemstack)) {
@@ -330,45 +330,38 @@ public class Backlytra {
 	@SideOnly(Side.CLIENT)
 	public static void setRotationAngles(ModelBiped modelBiped, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
 		boolean flag = entityIn instanceof EntityLivingBase && MethodImitations.getTicksElytraFlying((EntityLivingBase) entityIn) > 4;
-		modelBiped.bipedHead.rotateAngleY = netHeadYaw * 0.017453292F;
-
 		if (flag) {
+			limbSwing = ageInTicks;
+			modelBiped.bipedHead.rotateAngleY = netHeadYaw * 0.017453292F;
+	
 			modelBiped.bipedHead.rotateAngleX = -((float) Math.PI / 4F);
-		} else {
-			modelBiped.bipedHead.rotateAngleX = headPitch * 0.017453292F;
-		}
-
-		modelBiped.bipedBody.rotateAngleY = 0.0F;
-		modelBiped.bipedRightArm.rotationPointZ = 0.0F;
-		modelBiped.bipedRightArm.rotationPointX = -5.0F;
-		modelBiped.bipedLeftArm.rotationPointZ = 0.0F;
-		modelBiped.bipedLeftArm.rotationPointX = 5.0F;
-		float f = 1.0F;
-
-		/*
-		// this is supposed to make your legs flail when stalling
-		// TODO figure out how to fix this so it doesn't make the limbs jitter
-		if (flag) {
+	
+			modelBiped.bipedBody.rotateAngleY = 0.0F;
+			modelBiped.bipedRightArm.rotationPointZ = 0.0F;
+			modelBiped.bipedRightArm.rotationPointX = -5.0F;
+			modelBiped.bipedLeftArm.rotationPointZ = 0.0F;
+			modelBiped.bipedLeftArm.rotationPointX = 5.0F;
+			float f = 1.0F;
+	
 			f = (float) (entityIn.motionX * entityIn.motionX + entityIn.motionY * entityIn.motionY + entityIn.motionZ * entityIn.motionZ);
 			f = f / 0.2F;
 			f = f * f * f;
+	
+			if (f < 1.0F) {
+				f = 1.0F;
+			}
+	
+			modelBiped.bipedRightArm.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float) Math.PI) * 2.0F * limbSwingAmount * 0.5F / f;
+			modelBiped.bipedLeftArm.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F / f;
+			modelBiped.bipedRightArm.rotateAngleZ = 0.0F;
+			modelBiped.bipedLeftArm.rotateAngleZ = 0.0F;
+			modelBiped.bipedRightLeg.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount / f;
+			modelBiped.bipedLeftLeg.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount / f;
+			modelBiped.bipedRightLeg.rotateAngleY = 0.0F;
+			modelBiped.bipedLeftLeg.rotateAngleY = 0.0F;
+			modelBiped.bipedRightLeg.rotateAngleZ = 0.0F;
+			modelBiped.bipedLeftLeg.rotateAngleZ = 0.0F;
 		}
-		*/
-
-		if (f < 1.0F) {
-			f = 1.0F;
-		}
-
-		modelBiped.bipedRightArm.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float) Math.PI) * 2.0F * limbSwingAmount * 0.5F / f;
-		modelBiped.bipedLeftArm.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F / f;
-		modelBiped.bipedRightArm.rotateAngleZ = 0.0F;
-		modelBiped.bipedLeftArm.rotateAngleZ = 0.0F;
-		modelBiped.bipedRightLeg.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount / f;
-		modelBiped.bipedLeftLeg.rotateAngleX = MathHelper.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount / f;
-		modelBiped.bipedRightLeg.rotateAngleY = 0.0F;
-		modelBiped.bipedLeftLeg.rotateAngleY = 0.0F;
-		modelBiped.bipedRightLeg.rotateAngleZ = 0.0F;
-		modelBiped.bipedLeftLeg.rotateAngleZ = 0.0F;
 	}
 
 }
