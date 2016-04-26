@@ -33,7 +33,7 @@ public class LayerBetterElytra {
 	public static void doRenderLayer(EntityLivingBase entityIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		ItemStack itemstack = entityIn.getEquipmentInSlot(3);
 		if (itemstack != null && itemstack.getItem() == Backlytra.elytra) {
-			int bound = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+			GL11.glPushAttrib(-1);
 			int colorIndex =
 					itemstack.hasTagCompound() && itemstack.getTagCompound().hasKey("backlytra:elytraDye", NBT.TAG_ANY_NUMERIC)
 					? itemstack.getTagCompound().getInteger("backlytra:elytraDye")
@@ -60,9 +60,7 @@ public class LayerBetterElytra {
 				renderGlint(entityIn, modelElytra, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 
 			GL11.glPopMatrix();
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, bound);
-			
-			GL11.glColor3f(1, 1, 1);
+			GL11.glPopAttrib();
 		}
 	}
 
